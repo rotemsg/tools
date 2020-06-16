@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# uses rsync to watch for local files changes
+# by creating a locale copy of the current folder 
+# BE CAREFULE TO USE ON LARGE FOLDERS !!!!!!!!!!
+
+d="/tmp/`date +%s`"
+p=`pwd`
+echo $p $d
+[ ! -d "$d" ] && mkdir $d
+
+rmd(){
+    #echo "removing - $d"
+    rm -fr $d
+    rm $d.log
+}
+
+echo_changes(){
+    cat "$d.log" | grep "$p" | sed "s|$p/||"
+}
+
+export -f echo_changes
+
+trap rmd EXIT
+
+while :; do 
+    rsync -Rrauv --stats "$p" $d > "$d.log"
+    files_changed=`grep 'Number of files transferred:' $d.log`
+    [ "$files_changed" != "Number of files transferred: 0" ] && echo_changes
+    sleep 1; 
+done
+
