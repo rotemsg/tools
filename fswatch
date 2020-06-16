@@ -6,7 +6,7 @@
 
 d="/tmp/`date +%s`"
 p=`pwd`
-echo $p $d
+once=1
 [ ! -d "$d" ] && mkdir $d
 
 rmd(){
@@ -16,6 +16,7 @@ rmd(){
 }
 
 echo_changes(){
+    [ "$once" == 1 ] && once=0 && return
     cat "$d.log" | grep "$p" | sed "s|$p/||"
 }
 
